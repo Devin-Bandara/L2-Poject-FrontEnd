@@ -136,29 +136,33 @@ class _MyFormState extends State<MyForm> {
                         SizedBox(height: 20),
                         TextFormField(
                           controller: _contactNumberController,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9+]')),
+                          ],
                           decoration: const InputDecoration(
-                              icon: Icon(
-                                Icons.phone,
+                            icon: Icon(
+                              Icons.phone,
+                              color: Colors.orange,
+                            ),
+                            hintText: 'Ex: 0777123456',
+                            labelText: 'Contact Number*',
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
                                 color: Colors.orange,
                               ),
-                              hintText: 'Ex:0777123456',
-                              labelText: 'Contact Number*',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.orange,
-                                ),
-                              ),
-                              labelStyle: TextStyle(
-                                color: Colors.orange,
-                                fontSize: 16,
-                              )),
+                            ),
+                            labelStyle: TextStyle(
+                              color: Colors.orange,
+                              fontSize: 16,
+                            ),
+                          ),
                           validator: (value) {
                             if (value!.isEmpty) {
                               return 'Please enter a contact number';
                             }
-                            if (!RegExp(
-                                    r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$')
-                                .hasMatch(value)) {
+                            if (!RegExp(r'^[+]?[0-9]{8,}$').hasMatch(value)) {
                               return 'Please enter a valid contact number';
                             }
                             return null;
@@ -196,55 +200,99 @@ class _MyFormState extends State<MyForm> {
                         ),
                         SizedBox(height: 20),
                         TextFormField(
-                          controller: _dateController,
-                          decoration: const InputDecoration(
+                            readOnly: true,
+                            controller: _dateController,
+                            onTap: () async {
+                              // Show the date picker when the field is tapped
+                              DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime(2100),
+                              );
+
+                              if (pickedDate != null) {
+                                // Format the selected date as per your requirement
+                                String formattedDate =
+                                    DateFormat('dd/MM/yyyy').format(pickedDate);
+
+                                // Update the text field with the selected date
+                                _dateController.text = formattedDate;
+                              }
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Event Date*',
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.orange,
+                                ),
+                              ),
                               icon: Icon(
                                 Icons.date_range,
                                 color: Colors.orange,
                               ),
-                              labelText: 'Event date (MM/DD/YYYY)*',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.orange,
-                                ),
-                              ),
                               labelStyle: TextStyle(
                                 color: Colors.orange,
-                                fontSize: 16,
-                              )),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter the event date';
-                            }
-                            return null;
-                          },
-                        ),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter the event date';
+                              }
+                              return null;
+                            },
+                          ),
                         SizedBox(height: 20),
-                        TextFormField(
-                          controller: _eventStarttimeController,
-                          decoration: const InputDecoration(
-                              icon: Icon(
-                                Icons.lock_clock,
-                                color: Colors.orange,
-                              ),
-                              labelText: 'Event starting time*',
-                              hintText: 'Hour/Min/Sec(AM/PM)',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.orange,
+                        GestureDetector(
+                            onTap: () {
+                              // Show the time picker when the field is tapped
+                              showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.now(),
+                              ).then((pickedTime) {
+                                if (pickedTime != null) {
+                                  // Format the selected time as per your requirement
+                                  String formattedTime =
+                                      pickedTime.format(context);
+
+                                  // Update the text field with the selected time
+                                  _eventStarttimeController.text =
+                                      formattedTime;
+                                }
+                              });
+                            },
+                            child: AbsorbPointer(
+                              child: TextFormField(
+                                controller: _eventStarttimeController,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d{1,2}:\d{2} [AP]M$')),
+                                ],
+                                decoration: InputDecoration(
+                                  labelText: 'Event Start Time*',
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  hintText: 'Ex: 2:45 PM',
+                                  icon: Icon(
+                                    Icons.lock_clock,
+                                    color: Colors.orange,
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Colors.orange,
+                                  ),
                                 ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please enter the event time';
+                                  }
+                                  return null;
+                                },
                               ),
-                              labelStyle: TextStyle(
-                                color: Colors.orange,
-                                fontSize: 16,
-                              )),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter the event date';
-                            }
-                            return null;
-                          },
-                        ),
+                            ),
+                          ),
                         SizedBox(height: 20),
                         TextFormField(
                           controller: _eventLocation,
@@ -301,6 +349,9 @@ class _MyFormState extends State<MyForm> {
                         SizedBox(height: 20),
                         TextFormField(
                           controller: _totInvitees,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                           decoration: const InputDecoration(
                             icon: Icon(
                               Icons.person,
@@ -332,6 +383,9 @@ class _MyFormState extends State<MyForm> {
                         SizedBox(height: 20),
                         TextFormField(
                           controller: _eventDurationHours,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                           decoration: const InputDecoration(
                             icon: Icon(
                               Icons.timelapse_rounded,

@@ -201,29 +201,33 @@ class _MyFormState extends State<MyForm> {
                           SizedBox(height: 20),
                           TextFormField(
                             controller: _contactNumberController,
-                            decoration: InputDecoration(
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9+]')),
+                            ],
+                            decoration: const InputDecoration(
+                              icon: Icon(
+                                Icons.phone,
+                                color: Colors.orange,
+                              ),
+                              hintText: 'Ex: 0777123456',
                               labelText: 'Contact Number*',
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                   color: Colors.orange,
                                 ),
                               ),
-                              hintText: 'Ex : 0777123456',
-                              icon: Icon(
-                                Icons.phone,
-                                color: Colors.orange,
-                              ),
                               labelStyle: TextStyle(
                                 color: Colors.orange,
+                                fontSize: 16,
                               ),
                             ),
                             validator: (value) {
                               if (value!.isEmpty) {
                                 return 'Please enter a contact number';
                               }
-                              if (!RegExp(
-                                      r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$')
-                                  .hasMatch(value)) {
+                              if (!RegExp(r'^[+]?[0-9]{8,}$').hasMatch(value)) {
                                 return 'Please enter a valid contact number';
                               }
                               return null;
@@ -260,18 +264,87 @@ class _MyFormState extends State<MyForm> {
                             },
                           ),
                           SizedBox(height: 20),
+                          GestureDetector(
+                            onTap: () {
+                              // Show the time picker when the field is tapped
+                              showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.now(),
+                              ).then((pickedTime) {
+                                if (pickedTime != null) {
+                                  // Format the selected time as per your requirement
+                                  String formattedTime =
+                                      pickedTime.format(context);
+
+                                  // Update the text field with the selected time
+                                  _eventStarttimeController.text =
+                                      formattedTime;
+                                }
+                              });
+                            },
+                            child: AbsorbPointer(
+                              child: TextFormField(
+                                controller: _eventStarttimeController,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d{1,2}:\d{2} [AP]M$')),
+                                ],
+                                decoration: InputDecoration(
+                                  labelText: 'Event Start Time*',
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  hintText: 'Ex: 2:45 PM',
+                                  icon: Icon(
+                                    Icons.lock_clock,
+                                    color: Colors.orange,
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Colors.orange,
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please enter the event time';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
                           TextFormField(
-                            controller: _eventStarttimeController,
+                            readOnly: true,
+                            controller: _dateController,
+                            onTap: () async {
+                              // Show the date picker when the field is tapped
+                              DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime(2100),
+                              );
+
+                              if (pickedDate != null) {
+                                // Format the selected date as per your requirement
+                                String formattedDate =
+                                    DateFormat('dd/MM/yyyy').format(pickedDate);
+
+                                // Update the text field with the selected date
+                                _dateController.text = formattedDate;
+                              }
+                            },
                             decoration: InputDecoration(
-                              labelText: 'Event Start Time*',
+                              labelText: 'Event Date*',
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                   color: Colors.orange,
                                 ),
                               ),
-                              hintText: 'Ex:2.45 PM',
                               icon: Icon(
-                                Icons.lock_clock,
+                                Icons.date_range,
                                 color: Colors.orange,
                               ),
                               labelStyle: TextStyle(
@@ -287,32 +360,10 @@ class _MyFormState extends State<MyForm> {
                           ),
                           SizedBox(height: 20),
                           TextFormField(
-                              controller: _dateController,
-                              decoration: InputDecoration(
-                                labelText: 'Event Date*',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.orange,
-                                  ),
-                                ),
-                                hintText: 'DD/MM/YYYY',
-                                icon: Icon(
-                                  Icons.date_range,
-                                  color: Colors.orange,
-                                ),
-                                labelStyle: TextStyle(
-                                  color: Colors.orange,
-                                ),
-                              ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Please enter the event date';
-                                }
-                                return null;
-                              }),
-                          SizedBox(height: 20),
-                          TextFormField(
                             controller: _eventDurationHours,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             decoration: InputDecoration(
                               labelText: 'Event Duration in Hours*',
                               border: OutlineInputBorder(
@@ -320,7 +371,7 @@ class _MyFormState extends State<MyForm> {
                                   color: Colors.orange,
                                 ),
                               ),
-                              hintText: 'Ex:2',
+                              hintText: 'Ex: 2',
                               icon: Icon(
                                 Icons.lock_clock,
                                 color: Colors.orange,
@@ -333,8 +384,8 @@ class _MyFormState extends State<MyForm> {
                               if (value!.isEmpty) {
                                 return 'Please enter a valid number';
                               }
-                              if (double.tryParse(value) == null) {
-                                return 'Please enter a number';
+                              if (int.tryParse(value) == null) {
+                                return 'Please enter an integer';
                               }
                               return null;
                             },
@@ -386,6 +437,9 @@ class _MyFormState extends State<MyForm> {
                           SizedBox(height: 20),
                           TextFormField(
                             controller: _totInvitees,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             decoration: InputDecoration(
                               labelText: 'Total Invitees *',
                               border: OutlineInputBorder(
@@ -405,9 +459,9 @@ class _MyFormState extends State<MyForm> {
                             ),
                             validator: (value) {
                               if (value!.isEmpty) {
-                                return 'Please enter the total invitees ';
+                                return 'Please enter the total invitees';
                               }
-                              if (!RegExp(r'^-?\d+$').hasMatch(value)) {
+                              if (int.tryParse(value) == null) {
                                 return 'Please enter a valid number';
                               }
                               return null;
@@ -416,6 +470,9 @@ class _MyFormState extends State<MyForm> {
                           SizedBox(height: 20),
                           TextFormField(
                             controller: _numBigFamilies,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             decoration: InputDecoration(
                               labelText: 'Number of Big Families*',
                               border: OutlineInputBorder(
@@ -446,6 +503,9 @@ class _MyFormState extends State<MyForm> {
                           SizedBox(height: 20),
                           TextFormField(
                             controller: _numSmallFamilies,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             decoration: InputDecoration(
                               labelText: 'Number of Small Families*',
                               border: OutlineInputBorder(
@@ -476,6 +536,9 @@ class _MyFormState extends State<MyForm> {
                           SizedBox(height: 20),
                           TextFormField(
                             controller: _numMarriedCouples,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             decoration: InputDecoration(
                               labelText: 'Number of Married Couples*',
                               border: OutlineInputBorder(
@@ -505,6 +568,9 @@ class _MyFormState extends State<MyForm> {
                           SizedBox(height: 20),
                           TextFormField(
                             controller: _numUnMarriedCouples,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             decoration: const InputDecoration(
                               labelText: 'Number of Unmarried Couples*',
                               border: OutlineInputBorder(
@@ -534,6 +600,9 @@ class _MyFormState extends State<MyForm> {
                           SizedBox(height: 20),
                           TextFormField(
                             controller: _numIndividualInvitees,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             decoration: InputDecoration(
                               labelText: 'Number of Individual Invitees*',
                               border: OutlineInputBorder(

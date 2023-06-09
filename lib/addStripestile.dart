@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:myproject/configs.dart';
 import 'package:myproject/successful.dart';
@@ -106,6 +107,11 @@ class _AddPhotoTileScreenState extends State<AddPhotoTileScreen> {
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _amount,
+                  keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                    ],
                   decoration: const InputDecoration(
                     icon: Icon(Icons.money, color: Colors.orange),
                     labelText: 'Amount',
@@ -130,6 +136,9 @@ class _AddPhotoTileScreenState extends State<AddPhotoTileScreen> {
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _hour,
+                  inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                   decoration: const InputDecoration(
                     icon: Icon(Icons.cloud_circle, color: Colors.orange),
                     labelText: 'Hours',

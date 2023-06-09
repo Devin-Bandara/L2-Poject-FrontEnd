@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:html';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myproject/configs.dart';
 import 'package:myproject/poratraitQuo.dart';
 import 'package:myproject/changePortraitValue.dart';
@@ -24,7 +25,7 @@ class _MyAppState extends State<portraitEsti> {
   int numOfPhotos = 0;
   int selectedPackage = 1;
   double _price = 0;
-  double _size=0;
+  double _size = 0;
 
   void initState() {
     super.initState();
@@ -84,17 +85,23 @@ class _MyAppState extends State<portraitEsti> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Enter the Number of photos:',
-                style: TextStyle(fontSize: 18.0, color: Colors.orange),
-              ),
-              TextField(
+              TextFormField(
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
                 onChanged: (value) {
                   setState(() {
-                    numOfPhotos = int.parse(value);
+                    numOfPhotos = int.tryParse(value) ?? 0;
                   });
                 },
+                decoration: InputDecoration(
+                  labelText: 'Enter the Number of photos:',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.orange,
+                  ),
+                ),
               ),
               SizedBox(height: 16.0),
               Text(
@@ -130,7 +137,6 @@ class _MyAppState extends State<portraitEsti> {
               ),
               Text(
                 'Estimated Total Price: Rs ${_calculateTotalPrice()}',
-
                 style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
@@ -140,11 +146,15 @@ class _MyAppState extends State<portraitEsti> {
                 height: 150,
               ),
               ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => poratraitQuo()));
-                  },
-                  child: Text('Get Exact Amount')),
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => poratraitQuo()));
+                },
+                child: Text('Get Exact Amount'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.orange, // Set the background color to orange
+                ),
+              ),
               SizedBox(
                 height: 40,
               ),
@@ -155,9 +165,7 @@ class _MyAppState extends State<portraitEsti> {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => changePortraitValue()));
                     },
-                    child: Text('Change Values')
-                    ),
-                    
+                    child: Text('Change Values')),
               ),
             ],
           ),

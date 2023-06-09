@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myproject/configs.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:myproject/stripsQuo.dart';
@@ -8,7 +9,7 @@ import 'package:myproject/changeValue.dart';
 import 'package:http/http.dart' as http;
 import 'package:myproject/appbar.dart';
 
-//Custom web page 
+//Custom web page
 
 class custom extends StatefulWidget {
   final bool isAdmin;
@@ -32,8 +33,7 @@ class _MyAppState extends State<custom> {
   }
 
   Future<void> fetchUpdatedAmount() async {
-    final response =
-        await http.get(Uri.parse(localhost+'/getCustomValue'));
+    final response = await http.get(Uri.parse(localhost + '/getCustomValue'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
@@ -80,6 +80,11 @@ class _MyAppState extends State<custom> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                    ],
                     decoration: InputDecoration(
                       hintText: 'Ex:2.5 hours',
                       labelText: "Enter the Number of hours",
